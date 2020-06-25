@@ -4,7 +4,7 @@ namespace frontend\modules\user\controllers;
 
 use Yii;
 use frontend\modules\user\components\AuthHandler;
-use common\models\LoginForm;
+use frontend\modules\user\models\LoginForm;
 use frontend\modules\user\models\PasswordResetRequestForm;
 use frontend\modules\user\models\ResendVerificationEmailForm;
 use frontend\modules\user\models\ResetPasswordForm;
