@@ -1,11 +1,13 @@
 <?php
 /* @var $this yii\web\View */
-
 /* @var $user frontend\models\User */
+/* @var $currentUser frontend\models\User */
+/* @var $modelPicture frontend\modules\user\models\forms\PictureForm */
 
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
+use dosamigos\fileupload\FileUpload;
 
 ?>
 
@@ -13,22 +15,55 @@ use yii\helpers\HtmlPurifier;
 <p><?php echo HtmlPurifier::process($user->about); ?></p>
 <hr>
 
-<a href="<?php echo Url::to(['/user/profile/subscribe', 'id' => $user->getId()]); ?>" class="btn btn-info">Subscribe</a>
-<a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>"
-   class="btn btn-info">Unsubscribe</a>
-<hr>
+<img src="<?php echo $user->getPicture(); ?>">
 
-<h5>Friends, who are also following <?php echo Html::encode($user->username); ?>: </h5>
-<div class="row">
-    <?php foreach ($currentUser->getMutualSubscriptionsTo($user) as $item): ?>
-        <div class="col-md-12">
-            <a href="<?php Url::to(['/user/profile/view', 'nickname' => ($item['nickname']) ? $item['nickname'] : $item['id']]); ?>">
-                <?php echo Html::encode($item['username']); ?>
-            </a>
+<?= FileUpload::widget([
+    'model' => $modelPicture,
+    'attribute' => 'picture',
+    'url' => ['/user/profile/upload-picture'], // your url, this is just for demo purposes,
+    'options' => ['accept' => 'image/*'],
+    'clientOptions' => [
+        'maxFileSize' => 2000000
+    ],
+    // Also, you can specify jQuery-File-Upload events
+    // see: https://github.com/blueimp/jQuery-File-Upload/wiki/Options#processing-callback-options
+    'clientEvents' => [
+        'fileuploaddone' => 'function(e, data) {
+                                console.log(e);
+                                console.log(data);
+                            }',
+        'fileuploadfail' => 'function(e, data) {
+                                console.log(e);
+                                console.log(data);
+                            }',
+    ],
+]); ?>
+
+<?php if ($currentUser && !$user->equals($currentUser)): ?>
+
+    <?php if (!$currentUser->isFollowing($user)): ?>
+        <a href="<?php echo Url::to(['/user/profile/subscribe', 'id' => $user->getId()]); ?>"
+           class="btn btn-info">Subscribe</a>
+    <?php else: ?>
+        <a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>"
+           class="btn btn-info">Unsubscribe</a>
+    <?php endif; ?>
+    <hr>
+
+    <?php if ($mutualSubscriptions = $currentUser->getMutualSubscriptionsTo($user)): ?>
+        <h5>Friends, who are also following <?php echo Html::encode($user->username); ?>: </h5>
+        <div class="row">
+            <?php foreach ($mutualSubscriptions as $item): ?>
+                <div class="col-md-12">
+                    <a href="<?php Url::to(['/user/profile/view', 'nickname' => ($item['nickname']) ? $item['nickname'] : $item['id']]); ?>">
+                        <?php echo Html::encode($item['username']); ?>
+                    </a>
+                </div>
+            <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
-</div>
+    <?php endif; ?>
 
+<?php endif; ?>
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModalSubscribes">
     Subscriptions: <?php echo $user->countSubscriptions(); ?>
