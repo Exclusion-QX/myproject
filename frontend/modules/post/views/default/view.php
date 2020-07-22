@@ -16,6 +16,10 @@ use yii\helpers\Html;
         </div>
 
         <div class="col-md-12">
+            <?php echo Html::encode(Yii::$app->formatter->asDatetime($post->created_at)); ?>
+        </div>
+
+        <div class="col-md-12">
             <img src="<?php echo $post->getImage(); ?>" />
         </div>
 

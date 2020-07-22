@@ -49,12 +49,13 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '/' => 'site/index',
                 'profile/<nickname:\w+>' => 'user/profile/view',
                 'post/<id:\d+>' => 'post/default/view',
             ],
         ],
-        'storage' => [
-            'class' => 'frontend\components\Storage',
+        'feedService' => [
+            'class' => 'frontend\components\FeedService',
         ],
     ],
     'params' => $params,
