@@ -90,3 +90,9 @@ a.desc:after {
 {
     display: none;
 }
+
+.post-description-padding{
+    padding-top: 30px;
+    padding-left: 30px;
+    width: 800px;
+}

@@ -11,6 +11,7 @@ use yii\web\UploadedFile;
 use frontend\models\Post;
 use frontend\modules\post\models\forms\PostForm;
 
+
 /**
  * Default controller for the `post` module
  */
@@ -46,11 +47,14 @@ class DefaultController extends Controller
     public function actionView($id)
     {
         $currentUser = Yii::$app->user->identity;
+        $post = $this->findPost($id);
+        $comment = new CommentsForm(Yii::$app->user->identity);;
 
         /* @var $currentUser User */
         return $this->render('view', [
-            'post' => $this->findPost($id),
+            'post' => $post,
             'currentUser' => $currentUser,
+            'comment' => $comment,
         ]);
     }
 

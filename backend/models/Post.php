@@ -2,7 +2,6 @@
 
 namespace backend\models;
 
-use frontend\models\Feed;
 use Yii;
 
 /**
@@ -40,6 +39,11 @@ class Post extends \yii\db\ActiveRecord
         ];
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public static function findComplaints()
     {
         return Post::find()->where('complaints > 0')->orderBy('complaints DESC');
@@ -61,9 +65,24 @@ class Post extends \yii\db\ActiveRecord
         return $this->save(false, ['complaints']);
     }
 
-//    public function delete()
-//    {
-//        return Feed::deleteAll($this->id);
-//    }
+    public function deleteFeeds()
+    {
+        Feed::deleteAll('post_id = :id', [':id' => $this->id]);
+
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $key = "post:{$this->id}:complaints";
+        $redis->del($key);
+
+        $this->deleteLikes();
+    }
+
+    public function deleteLikes()
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $redis->srem("post:{$this->getId()}:likes", '*');
+        $redis->srem("user:*:likes", $this->getId());
+    }
 
 }

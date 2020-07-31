@@ -3,6 +3,7 @@
 /* @var $post frontend\models\Post */
 
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
 ?>
 <div class="post-default-index">
@@ -10,9 +11,16 @@ use yii\helpers\Html;
     <div class="row">
 
         <div class="col-md-12">
-            <?php if ($post->user): ?>
-                <?php echo $post->user->username; ?>
-            <?php endif; ?>
+            <article class="profile">
+                <div class="profile-title">
+                    <img src="<?php echo $post->user->getPicture(); ?>" id="profile-picture" class="author-image"/>
+                    <div class="author-name">
+                        <?php if ($post->user): ?>
+                            <?php echo $post->user->username; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </article>
         </div>
 
         <div class="col-md-12">
@@ -20,10 +28,10 @@ use yii\helpers\Html;
         </div>
 
         <div class="col-md-12">
-            <img src="<?php echo $post->getImage(); ?>" />
+            <img src="<?php echo $post->getImage(); ?>" style="width: 800px;" />
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-12 post-description-padding">
             <?php echo Html::encode($post->description); ?>
         </div>
 
@@ -43,6 +51,18 @@ use yii\helpers\Html;
         </a>
 
     </div>
+
+<!--    <div class="col-md-12">-->
+<!--        Comments-->
+<!---->
+<!--        --><?php //$form = ActiveForm::begin(); ?>
+<!---->
+<!--        --><?php //echo $form->field($model, 'description'); ?>
+<!---->
+<!--        --><?php //echo Html::submitButton('Send'); ?>
+<!---->
+<!--        --><?php //ActiveForm::end(); ?>
+<!--    </div>-->
 </div>
 <?php $this->registerJsFile('@web/js/likes.js', [
     'depends' => \yii\web\JqueryAsset::className(),

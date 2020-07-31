@@ -104,4 +104,9 @@ class Post extends \yii\db\ActiveRecord
         }
     }
 
+    public function getComments()
+    {
+        return $this->hasMany(Comments::className(), ['post_id' => 'id']);
+    }
+
 }

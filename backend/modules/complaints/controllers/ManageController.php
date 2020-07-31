@@ -4,6 +4,7 @@ namespace backend\modules\complaints\controllers;
 
 use Yii;
 use backend\models\Post;
+use backend\models\Feed;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -66,6 +67,7 @@ class ManageController extends Controller
      */
     public function actionDelete($id)
     {
+        $this->findModel($id)->deleteFeeds();
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
