@@ -8,7 +8,10 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use yii\web\Response;
+use frontend\models\Comments;
+use frontend\models\Feed;
 use frontend\modules\user\models\forms\PictureForm;
+use frontend\modules\user\models\forms\ProfileForm;
 
 /**
  * Default controller for the `user` module
@@ -20,13 +23,14 @@ class ProfileController extends Controller
     {
         /* @var $currentUser User */
         $currentUser = Yii::$app->user->identity;
-
+        $model = new ProfileForm();
         $modelPicture = new PictureForm();
 
         return $this->render('view', [
             'user' => $this->findUser($nickname),
             'currentUser' => $currentUser,
             'modelPicture' => $modelPicture,
+            'model' => $model,
         ]);
     }
 
@@ -53,6 +57,23 @@ class ProfileController extends Controller
             }
         }
         return ['success' => false, 'errors' => $model->getErrors()];
+    }
+
+    public function actionEdit($id)
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['/user/default/login']);
+        }
+
+        $model = new ProfileForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Change saved');
+                return $this->redirect(['/user/profile/view', 'nickname' => $id]);
+            }
+        }
+
     }
 
     /**

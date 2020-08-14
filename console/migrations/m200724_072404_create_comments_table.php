@@ -17,6 +17,8 @@ class m200724_072404_create_comments_table extends Migration
             'user_id' => $this->integer(),
             'post_id' => $this->integer(),
             'comment' => $this->text(),
+            'author_comment' => $this->string(),
+            'author_picture' => $this->string(),
             'created_at' => $this->integer()->notNull(),
         ]);
     }

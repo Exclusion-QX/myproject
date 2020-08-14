@@ -62,4 +62,9 @@ class Feed extends \yii\db\ActiveRecord
             return $redis->sismember("post:{$this->post_id}:complaints", $user->getId());
         }
 
+        public function countComments()
+        {
+            return Comments::find()->where('post_id=:post_id', [':post_id' => $this->post_id])->count();
+        }
+
 }

@@ -7,7 +7,7 @@ use yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
-use frontend\modules\comments\models\forms\CommentsForm;
+use frontend\modules\comments\models\forms\CommentForm;
 
 class DefaultController extends Controller
 {
@@ -18,7 +18,7 @@ class DefaultController extends Controller
             return $this->redirect(['/user/default/login']);
         }
 
-        $model = new CommentsForm(Yii::$app->user->identity);
+        $model = new CommentForm(Yii::$app->user->identity);
 
         if ($model->load(Yii::$app->request->post())) {
 

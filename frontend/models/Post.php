@@ -38,6 +38,11 @@ class Post extends \yii\db\ActiveRecord
         ];
     }
 
+    public function __construct()
+    {
+        $this->on(self::EVENT_AFTER_UPDATE, [$this, 'saveDecriptionInFeed']);
+    }
+
     public function getImage()
     {
         return Yii::$app->storage->getFile($this->filename);
@@ -104,9 +109,67 @@ class Post extends \yii\db\ActiveRecord
         }
     }
 
-    public function getComments()
+    public function isReported(User $user)
     {
-        return $this->hasMany(Comments::className(), ['post_id' => 'id']);
+        /* @var $redis connection */
+        $redis = Yii::$app->redis;
+        return $redis->sismember("post:{$this->id}:complaints", $user->getId());
     }
 
+    public function getComments()
+    {
+        $order = ['created_at' => SORT_DESC];
+        return $this->hasMany(Comments::className(), ['post_id' => 'id'])->orderBy($order)->all();
+    }
+
+    public function getPostAuthor($id)
+    {
+        return User::findOne(['id' => $id]);
+    }
+
+    public function getUserPost($id)
+    {
+        return Post::findOne(['id' => $id]);
+    }
+
+    public function getCommentById($id)
+    {
+        return Comments::findOne(['id' => $id]);
+    }
+
+    public function deleteComment($id)
+    {
+        return Comments::findOne(['id' => $id])->delete();
+    }
+
+    public function editPost($description, $id)
+    {
+        $model = Post::findOne($id);
+        $model->description = $description;
+        $model->update();
+        return true;
+    }
+
+    public function deleteFeeds()
+    {
+        Feed::deleteAll('post_id = :id', [':id' => $this->id]);
+
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $key = "post:{$this->id}:complaints";
+        $redis->del($key);
+    }
+
+    public function deleteLikes()
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $redis->del("post:{$this->id}:likes");
+//        $redis->del("user:*:likes", $this->id());
+    }
+
+    public function saveDecriptionInFeed()
+    {
+        return Yii::$app->db->createCommand()->update('feed', ['post_description' => $this->description], 'post_id = :id', [':id' => $this->id])->execute();
+    }
 }

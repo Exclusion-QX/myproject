@@ -73,16 +73,14 @@ class Post extends \yii\db\ActiveRecord
         $redis = Yii::$app->redis;
         $key = "post:{$this->id}:complaints";
         $redis->del($key);
-
-        $this->deleteLikes();
     }
 
     public function deleteLikes()
     {
         /* @var $redis Connection */
         $redis = Yii::$app->redis;
-        $redis->srem("post:{$this->getId()}:likes", '*');
-        $redis->srem("user:*:likes", $this->getId());
+        $redis->del("post:{$this->id}:likes");
+//        $redis->del("user:*:likes", $this->id());
     }
 
 }

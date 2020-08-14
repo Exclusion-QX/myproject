@@ -10,7 +10,8 @@ use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use frontend\models\Post;
 use frontend\modules\post\models\forms\PostForm;
-
+use frontend\modules\post\models\forms\CommentForm;
+use frontend\modules\post\models\forms\EditForm;
 
 /**
  * Default controller for the `post` module
@@ -48,14 +49,30 @@ class DefaultController extends Controller
     {
         $currentUser = Yii::$app->user->identity;
         $post = $this->findPost($id);
-        $comment = new CommentsForm(Yii::$app->user->identity);;
+        $newComment = new CommentForm();
+        $comment = $post->getComments();
+        $model = new EditForm();
 
         /* @var $currentUser User */
         return $this->render('view', [
             'post' => $post,
             'currentUser' => $currentUser,
+            'newComment' => $newComment,
             'comment' => $comment,
+            'model' => $model,
         ]);
+    }
+
+    public function actionComment($id, $username)
+    {
+        $model = new CommentForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save($id, $username)) {
+                Yii::$app->session->setFlash('success', 'Comment sent!');
+                return $this->redirect(['/post/default/view', 'id' => $id]);
+            }
+        }
     }
 
     public function actionLike()
@@ -141,5 +158,63 @@ class DefaultController extends Controller
         throw new NotFoundHttpException();
     }
 
+    protected function findModel($id)
+    {
+        if (($model = Post::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
+
+    public function actionDeletecomment()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $id = Yii::$app->request->post('id');
+        $post = new Post();
+        $comment = $post->getCommentById($id);
+        $author = $post->getUserPost($comment['post_id']);
+
+        if (($author['user_id'] == Yii::$app->user->id) || ($comment['user_id'] == Yii::$app->user->id)) {
+            $post->deleteComment($id);
+
+            return [
+                'success' => true,
+            ];
+        }
+
+        return [
+            'success' => false,
+        ];
+    }
+
+    public function actionDelete()
+    {
+        $id = Yii::$app->request->post('id');
+
+        $this->findModel($id)->deleteFeeds();
+        $this->findModel($id)->deleteLikes();
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['/user/profile/view', 'nickname' => Yii::$app->user->id]);
+    }
+
+    public function actionEdit($id)
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['/user/default/login']);
+        }
+
+        $model = new EditForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save($id)) {
+                Yii::$app->session->setFlash('success', 'Change saved');
+                return $this->redirect(['/post/default/view', 'id' => $id]);
+            }
+        }
+
+    }
 
 }

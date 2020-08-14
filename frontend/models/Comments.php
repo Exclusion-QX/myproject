@@ -23,8 +23,18 @@ class Comments extends ActiveRecord
             'user_id' => 'User ID',
             'post_id' => 'Post ID',
             'comment' => 'Comment',
+            'author_comment' => 'Author Comment',
+            'author_picture' => 'Author Picture',
             'created_at' => 'Created At',
         ];
+    }
+
+    public function setPicture($id, $picture)
+    {
+        $model = Comments::find()->where(['user_id' => $id])->all();
+        $model->author_picture = $picture;
+        $model->update();
+        return true;
     }
 
 }

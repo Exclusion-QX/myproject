@@ -8,6 +8,7 @@
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
+use yii\widgets\ActiveForm;
 use dosamigos\fileupload\FileUpload;
 
 $this->title = Html::encode($user->username);
@@ -53,9 +54,9 @@ $this->title = Html::encode($user->username);
                                     ],
                                 ]); ?>
                                 <a href="<?php echo Url::to(['/user/profile/delete-picture']); ?>"
-                                   class="btn btn-danger">Delete picture</a>
+                                   class="btn btn-danger"><?php echo Yii::t('profile', 'Delete picture') ?></a>
 
-                                <a href="#" class="btn btn-default">Edit profile</a>
+                                <a href="#" data-toggle="modal" data-target="#editProfileModal" class="btn btn-default"><?php echo Yii::t('profile', 'Edit profile') ?></a>
                             <?php endif; ?>
 
 <!--                            <a href="#" class="btn btn-default">Upload profile image</a>-->
@@ -63,8 +64,8 @@ $this->title = Html::encode($user->username);
 
                             <br>
                             <br>
-                            <div class="alert alert-success display-none" id="profile-image-success">Profile image
-                                updated
+                            <div class="alert alert-success display-none" id="profile-image-success">
+                                <?php echo Yii::t('profile', 'Profile image updated') ?>
                             </div>
                             <div class="alert alert-danger display-none" id="profile-image-fail"></div>
 
@@ -72,20 +73,24 @@ $this->title = Html::encode($user->username);
 
                         <?php if ($currentUser && !$currentUser->equals($user)): ?>
 
-
                             <a href="<?php echo Url::to(['/user/profile/subscribe', 'id' => $user->getId()]); ?>"
-                               class="btn btn-info">Subscribe</a>
-                            <a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>" class="btn btn-info">Unsubscribe</a>
+                               class="btn btn-info <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "display-none" : ""; ?>">
+                                <?php echo Yii::t('profile', 'Subscribe') ?></a>
+                            <a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>"
+                               class="btn btn-default <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "" : "display-none"; ?>">
+                                <?php echo Yii::t('profile', 'Unsubscribe') ?>
+                            </a>
                             <hr>
-                            <h5>Friends, who are also following <?php echo Html::encode($user->username); ?>: </h5>
+                            <h5><?php echo Yii::t('profile', 'Friends, who are also following') ?><?php echo Html::encode($user->username); ?>: </h5>
                             <div class="row">
-                                <?php foreach ($currentUser->getMutualSubscriptionsTo($user) as $item): ?>
-                                    <div class="col-md-12">
+                                <div class="col-md-12">
+                                    <?php foreach ($currentUser->getMutualSubscriptionsTo($user) as $item): ?>
                                         <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($item['nickname']) ? $item['nickname'] : $item['id']]); ?>">
                                             <?php echo Html::encode($item['username']); ?>
                                         </a>
-                                    </div>
-                                <?php endforeach; ?>
+                                        &nbsp;&nbsp;
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                             <hr>
                         <?php endif; ?>
@@ -97,13 +102,17 @@ $this->title = Html::encode($user->username);
                         <?php endif; ?>
                         <div class="profile-bottom">
                             <div class="profile-post-count">
-                                <span><?php echo $user->getPostCount(); ?> posts</span>
+                                <span><?php echo Yii::t('profile', 'Posts') ?> <?php echo $user->getPostCount(); ?></span>
                             </div>
                             <div class="profile-followers">
-                                <a href="#" data-toggle="modal" data-target="#myModalFollowers"><?php echo $user->countFollowers(); ?> followers</a>
+                                <a href="#" data-toggle="modal" data-target="#myModalFollowers">
+                                    <?php echo Yii::t('profile', 'Followers') ?> <?php echo $user->countFollowers(); ?>
+                                </a>
                             </div>
                             <div class="profile-following">
-                                <a href="#" data-toggle="modal" data-target="#myModalSubscribes"><?php echo $user->countSubscriptions(); ?> following</a>
+                                <a href="#" data-toggle="modal" data-target="#myModalSubscribes">
+                                    <?php echo Yii::t('profile', 'Following') ?> <?php echo $user->countSubscriptions(); ?>
+                                </a>
                             </div>
                         </div>
                     </article>
@@ -140,22 +149,25 @@ $this->title = Html::encode($user->username);
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                <h4 class="modal-title" id="myModalLabel"><? echo Yii::t('profile', 'Subscribes') ?></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <?php foreach ($user->getSubscriptions() as $subscription): ?>
                         <div class="col-md-12">
-                            <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($subscription['nickname']) ? $subscription['nickname'] : $subscription['id']]); ?>">
-                                <?php echo Html::encode($subscription['username']); ?>
-                            </a>
+                            <div class="modal-window">
+                                <img src="/uploads/<?php echo $subscription['picture']; ?>" class="author-image">
+                                <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($subscription['nickname']) ? $subscription['nickname'] : $subscription['id']]); ?>">
+                                    <?php echo Html::encode($subscription['username']); ?>
+                                </a>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><? echo Yii::t('profile', 'Close') ?></button>
+<!--                <button type="button" class="btn btn-primary">Save changes</button>-->
             </div>
         </div>
     </div>
@@ -168,23 +180,60 @@ $this->title = Html::encode($user->username);
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                <h4 class="modal-title" id="myModalLabel"><? echo Yii::t('profile', 'Followers') ?></h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <?php foreach ($user->getFollowers() as $follower): ?>
                         <div class="col-md-12">
-                            <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($follower['nickname']) ? $follower['nickname'] : $follower['id']]); ?>">
-                                <?php echo Html::encode($follower['username']); ?>
-                            </a>
+                            <div class="modal-window">
+                                <img src="/uploads/<?php echo $follower['picture']; ?>" class="author-image">
+                                <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($follower['nickname']) ? $follower['nickname'] : $follower['id']]); ?>">
+                                    <?php echo Html::encode($follower['username']); ?>
+                                </a>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><? echo Yii::t('profile', 'Close') ?></button>
+<!--                <button type="button" class="btn btn-primary">Save changes</button>-->
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel"><? echo Yii::t('profile', 'Edit profile') ?></h4>
+            </div>
+            <?php $form = ActiveForm::begin([
+                'action' => ['profile/edit', 'id' => $currentUser->id],
+            ]); ?>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <?php echo $form->field($model, 'username')->textInput(['value' => $currentUser->username])->label(Yii::t('profile' , 'Username')); ?>
+
+                        <?php echo $form->field($model, 'nickname')->label(Yii::t('profile' , 'Nickname')); ?>
+
+                        <?php echo $form->field($model, 'about')->textarea(['style' => 'resize: none;'])->label(Yii::t('profile' , 'About')); ?>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><? echo Yii::t('profile', 'Close') ?></button>
+                <?php echo Html::submitButton(Yii::t('profile', 'Save changes'), ['class' => 'btn btn-primary']);?>
+            </div>
+            <?php ActiveForm::end(); ?>
         </div>
     </div>
 </div>

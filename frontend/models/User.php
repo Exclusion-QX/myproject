@@ -228,6 +228,14 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return ($this->username) ? $this->nickname : $this->getId();
+    }
+
+    /**
      * Subscribe current user to given user
      * @param \frontend\models\User $user
      */
@@ -253,7 +261,7 @@ class User extends ActiveRecord implements IdentityInterface
         $redis = Yii::$app->redis;
         $key = "user:{$this->getId()}:subscriptions";
         $ids = $redis->smembers($key);
-        return User::find()->select('id, username, nickname')->where(['id' => $ids])->orderBy('username')->asArray()->all();
+        return User::find()->select('id, username, nickname, picture')->where(['id' => $ids])->orderBy('username')->asArray()->all();
     }
 
     public function getFollowers()
@@ -262,7 +270,7 @@ class User extends ActiveRecord implements IdentityInterface
         $redis = Yii::$app->redis;
         $key = "user:{$this->getId()}:followers";
         $ids = $redis->smembers($key);
-        return User::find()->select('id, username, nickname')->where(['id' => $ids])->orderBy('username')->asArray()->all();
+        return User::find()->select('id, username, nickname, picture')->where(['id' => $ids])->orderBy('username')->asArray()->all();
     }
 
     /**
@@ -294,7 +302,7 @@ class User extends ActiveRecord implements IdentityInterface
         $redis = Yii::$app->redis;
 
         $ids = $redis->sinter($key1, $key2);
-        return User::find()->select('id, username, nickname')->where(['id' => $ids])->orderBy('username')->asArray()->all();
+        return User::find()->select('id, username, nickname')->where(['id' => $ids])->orderBy('username')->asArray()->limit(3)->all();
     }
 
     /**
@@ -315,6 +323,11 @@ class User extends ActiveRecord implements IdentityInterface
             return Yii::$app->storage->getFile($this->picture);
         }
         return self::DEFAULT_IMAGE;
+    }
+
+    public function getUserById(int $id)
+    {
+        return User::findOne(['id' => $id]);
     }
 
     /**
@@ -375,6 +388,25 @@ class User extends ActiveRecord implements IdentityInterface
         $order = ['created_at' => SORT_DESC];
         return $this->hasMany(Post::className(), ['user_id' => 'id'])->orderBy($order)->all();
     }
+
+    public function isSubscribeBy(User $user)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        return $redis->sismember("user:{$user->getId()}:subscriptions", $this->getId());
+    }
+
+    public function editUser($username, $nickname, $about)
+    {
+        $id = Yii::$app->user->id;
+        $model = User::findOne($id);
+        $model->username = $username;
+        $model->nickname = $nickname;
+        $model->about = $about;
+        $model->update();
+        return true;
+    }
+
 }
 
 

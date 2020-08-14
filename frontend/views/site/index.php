@@ -29,11 +29,11 @@ $this->title = 'Newsfeed';
                                         <div class="col-md-8 col-md-offset-2">
                                             <div class="post-meta">
                                                 <div class="post-title">
-                                                    <img src="<?php echo $feedItem->author_picture; ?>"
+                                                    <img src="/uploads/<?php echo $currentUser->getUserById($feedItem->author_id)->picture; ?>"
                                                          class="author-image"/>
                                                     <div class="author-name">
-                                                        <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($feedItem->author_nickname) ? $feedItem->author_nickname : $feedItem->author_id]); ?>">
-                                                            <?php echo Html::encode($feedItem->author_name); ?>
+                                                        <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($currentUser->getUserById($feedItem->author_id)->nickname) ? $currentUser->getUserById($feedItem->author_id)->nickname : $feedItem->author_id]); ?>">
+                                                            <?php echo Html::encode($currentUser->getUserById($feedItem->author_id)->username); ?>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -48,26 +48,23 @@ $this->title = 'Newsfeed';
                                             </div>
                                             <div class="post-bottom">
                                                 <div class="post-likes">
-                                                    <i class="fa fa-lg fa-heart-o"></i>
                                                     <span class="likes-count"><?php echo $feedItem->countLikes(); ?></span>
-                                                    &nbsp;&nbsp;&nbsp;
+                                                    &nbsp;
                                                     <a href="#"
-                                                       class="btn btn-default button-unlike <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "" : "display-none"; ?>"
+                                                       class="btn btn-default button-heart button-unlike <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "" : "display-none"; ?>"
                                                        data-id="<?php echo $feedItem->post_id; ?>">
 
-                                                        Unlike&nbsp;&nbsp;<span
-                                                                class="glyphicon glyphicon-thumbs-down"></span>
+                                                        <i class="fa fa-lg fa-heart heart-ani" style="color: #FB000D;"></i>
                                                     </a>
 
                                                     <a href="#"
-                                                       class="btn btn-default button-like <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "display-none" : ""; ?>"
+                                                       class="btn btn-default button-heart  button-like <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "display-none" : ""; ?>"
                                                        data-id="<?php echo $feedItem->post_id; ?>">
-                                                        Like&nbsp;&nbsp;<span
-                                                                class="glyphicon glyphicon-thumbs-up"></span>
+                                                        <i class="fa fa-lg fa-heart-o heart-ani"></i>
                                                     </a>
                                                 </div>
                                                 <div class="post-comments">
-                                                    <a href="#">0 Comments</a>
+                                                    <a href="<?php echo Url::to(['/post/default/view', 'id' => $feedItem->post_id]); ?>"><?php echo $feedItem->countComments(); ?> <?php echo Yii::t('feed', 'Comments') ?></a>
 
                                                 </div>
                                                 <div class="post-date">
@@ -76,7 +73,7 @@ $this->title = 'Newsfeed';
                                                 <div class="post-report">
                                                     <?php if (!$feedItem->isReported($currentUser)): ?>
                                                         <a href="#" class="btn btn-default button-complain" data-id="<?php echo $feedItem->post_id; ?>">
-                                                            Report post <i class="fa fa-cog fa-spin fa-fw icon-preloader" style="display: none"></i>
+                                                            <?php echo Yii::t('feed', 'Report post') ?> <i class="fa fa-cog fa-spin fa-fw icon-preloader" style="display: none"></i>
                                                         </a>
                                                     <?php else: ?>
                                                         <p>Post has been reported</p>
@@ -91,8 +88,8 @@ $this->title = 'Newsfeed';
 
                         <?php else: ?>
 
-                            <div class="col-md-12">
-                                Nobody posted yet!
+                            <div class="col-md-12" style="text-align: center">
+                                <h2>Nobody posted yet!</h2>
                             </div>
                         <?php endif; ?>
                     </div>
