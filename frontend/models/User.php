@@ -1,4 +1,5 @@
 <?php
+
 namespace frontend\models;
 
 use Yii;
@@ -20,6 +21,10 @@ use yii\web\IdentityInterface;
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
+ * @property string $about
+ * @property integer $type
+ * @property string $nickname
+ * @property string $picture
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -27,6 +32,8 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_DELETED = 0;
     const STATUS_INACTIVE = 9;
     const STATUS_ACTIVE = 10;
+
+    const DEFAULT_IMAGE = '/img/profile_default_image.jpg';
 
 
     /**
@@ -109,7 +116,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token verify email token
      * @return static|null
      */
-    public static function findByVerificationToken($token) {
+    public static function findByVerificationToken($token)
+    {
         return static::findOne([
             'verification_token' => $token,
             'status' => self::STATUS_INACTIVE
@@ -128,7 +136,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
 
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
     }
@@ -209,4 +217,196 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_reset_token = null;
     }
+
+
+    /**
+     * @return mixed
+     */
+    public function getNickname()
+    {
+        return ($this->nickname) ? $this->nickname : $this->getId();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return ($this->username) ? $this->nickname : $this->getId();
+    }
+
+    /**
+     * Subscribe current user to given user
+     * @param \frontend\models\User $user
+     */
+    public function followUser(User $user)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $redis->sadd("user:{$this->getId()}:subscriptions", $user->getId());
+        $redis->sadd("user:{$user->getId()}:followers", $this->getId());
+    }
+
+    public function unfollowUser(User $user)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $redis->srem("user:{$this->getId()}:subscriptions", $user->getId());
+        $redis->srem("user:{$user->getId()}:followers", $this->getId());
+    }
+
+    public function getSubscriptions()
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $key = "user:{$this->getId()}:subscriptions";
+        $ids = $redis->smembers($key);
+        return User::find()->select('id, username, nickname, picture')->where(['id' => $ids])->orderBy('username')->asArray()->all();
+    }
+
+    public function getFollowers()
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        $key = "user:{$this->getId()}:followers";
+        $ids = $redis->smembers($key);
+        return User::find()->select('id, username, nickname, picture')->where(['id' => $ids])->orderBy('username')->asArray()->all();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function countFollowers()
+    {
+        $redis = Yii::$app->redis;
+        return $redis->scard("user:{$this->getId()}:followers");
+    }
+
+    /**
+     * @return mixed
+     */
+    public function countSubscriptions()
+    {
+        $redis = Yii::$app->redis;
+        return $redis->scard("user:{$this->getId()}:subscriptions");
+    }
+
+    public function getMutualSubscriptionsTo(User $user)
+    {
+        // Current user subscriptions
+        $key1 = "user:{$this->getId()}:subscriptions";
+        // Given user followers
+        $key2 = "user:{$user->getId()}:followers";
+
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+
+        $ids = $redis->sinter($key1, $key2);
+        return User::find()->select('id, username, nickname')->where(['id' => $ids])->orderBy('username')->asArray()->limit(3)->all();
+    }
+
+    /**
+     * Check whether current user if following given user
+     * @param \frontend\models\User $user
+     * @return boolean
+     */
+    public function isFollowing(User $user)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        return (bool)$redis->sismember("user:{$this->getId()}:subscriptions", $user->getId());
+    }
+
+    public function getPicture()
+    {
+        if ($this->picture) {
+            return Yii::$app->storage->getFile($this->picture);
+        }
+        return self::DEFAULT_IMAGE;
+    }
+
+    public function getUserById(int $id)
+    {
+        return User::findOne(['id' => $id]);
+    }
+
+    /**
+     * Delete picture from user record and file system
+     * @return boolean
+     */
+    public function deletePicture()
+    {
+        if ($this->picture && Yii::$app->storage->deleteFile($this->picture)) {
+
+            $this->picture = null;
+
+            return $this->save(false, ['picture']);
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Get data for newsfeed
+     * @param int $limit
+     * @return array|ActiveRecord[]
+     */
+    public function getFeed(int $limit)
+    {
+        $order = ['post_created_at' => SORT_DESC];
+        return $this->hasMany(Feed::className(), ['user_id' => 'id'])->orderBy($order)->limit($limit)->all();
+    }
+
+    /**
+     * Check whether current user likes post with given id
+     * @param int $postId
+     * @return bool
+     */
+    public function likesPost(int $postId)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        return (bool) $redis->sismember("user:{$this->getId()}:likes", $postId);
+    }
+
+    /**
+     * Get post count
+     * @return integer
+     */
+    public function getPostCount()
+    {
+        return $this->hasMany(Post::className(), ['user_id' => 'id'])->count();
+    }
+
+    /**
+     * Get post count
+     * @return Post[]
+     */
+    public function getPosts()
+    {
+        $order = ['created_at' => SORT_DESC];
+        return $this->hasMany(Post::className(), ['user_id' => 'id'])->orderBy($order)->all();
+    }
+
+    public function isSubscribeBy(User $user)
+    {
+        /* @var $redis Connection */
+        $redis = Yii::$app->redis;
+        return $redis->sismember("user:{$user->getId()}:subscriptions", $this->getId());
+    }
+
+    public function editUser($username, $nickname, $about)
+    {
+        $id = Yii::$app->user->id;
+        $model = User::findOne($id);
+        $model->username = $username;
+        $model->nickname = $nickname;
+        $model->about = $about;
+        $model->update();
+        return true;
+    }
+
 }
+
+

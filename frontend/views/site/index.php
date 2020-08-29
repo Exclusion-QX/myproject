@@ -1,53 +1,111 @@
 <?php
 
 /* @var $this yii\web\View */
+/* @var $currentUser [] frontend\models\User */
 
-$this->title = 'My Yii Application';
+/* @var $feedItems [] frontend\models\Feed */
+
+use yii\web\JqueryAsset;
+use yii\helpers\Url;
+use yii\helpers\Html;
+use yii\helpers\HtmlPurifier;
+
+$this->title = 'Newsfeed';
 ?>
-<div class="site-index">
 
-    <div class="jumbotron">
-        <h1>Congratulations!</h1>
-
-        <p class="lead">You have successfully created your Yii-powered application.</p>
-
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
-
-    <div class="body-content">
-
+    <div class="page-posts no-padding">
         <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+            <div class="page page-post col-sm-12 col-xs-12">
+                <div class="blog-posts blog-posts-large">
+                    <div class="row">
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                        <?php if ($feedItems): ?>
+                            <?php foreach ($feedItems as $feedItem): ?>
+                                <?php /* @var $feedItem Feed */ ?>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+                                <!-- feed item -->
+                                <article class="post col-sm-12 col-xs-12">
+                                    <div class="row">
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <div class="post-meta">
+                                                <div class="post-title">
+                                                    <img src="/uploads/<?php echo $currentUser->getUserById($feedItem->author_id)->picture; ?>"
+                                                         class="author-image"/>
+                                                    <div class="author-name">
+                                                        <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($currentUser->getUserById($feedItem->author_id)->nickname) ? $currentUser->getUserById($feedItem->author_id)->nickname : $feedItem->author_id]); ?>">
+                                                            <?php echo Html::encode($currentUser->getUserById($feedItem->author_id)->username); ?>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="post-type-image">
+                                                <a href="<?php echo Url::to(['/post/default/view', 'id' => $feedItem->post_id]); ?>">
+                                                    <img src="<?php echo Yii::$app->storage->getFile($feedItem->post_filename); ?>">
+                                                </a>
+                                            </div>
+                                            <div class="post-description">
+                                                <p><?php echo HtmlPurifier::process($feedItem->post_description); ?></p>
+                                            </div>
+                                            <div class="post-bottom">
+                                                <div class="post-likes">
+                                                    <span class="likes-count"><?php echo $feedItem->countLikes(); ?></span>
+                                                    &nbsp;
+                                                    <a href="#"
+                                                       class="btn btn-default button-heart button-unlike <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "" : "display-none"; ?>"
+                                                       data-id="<?php echo $feedItem->post_id; ?>">
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                                                        <i class="fa fa-lg fa-heart heart-ani" style="color: #FB000D;"></i>
+                                                    </a>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+                                                    <a href="#"
+                                                       class="btn btn-default button-heart  button-like <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "display-none" : ""; ?>"
+                                                       data-id="<?php echo $feedItem->post_id; ?>">
+                                                        <i class="fa fa-lg fa-heart-o heart-ani"></i>
+                                                    </a>
+                                                </div>
+                                                <div class="post-comments">
+                                                    <a href="<?php echo Url::to(['/post/default/view', 'id' => $feedItem->post_id]); ?>"><?php echo $feedItem->countComments(); ?> <?php echo Yii::t('feed', 'Comments') ?></a>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                                                </div>
+                                                <div class="post-date">
+                                                    <span><?php echo Yii::$app->formatter->asDatetime($feedItem->post_created_at); ?></span>
+                                                </div>
+                                                <div class="post-report">
+                                                    <?php if (!$feedItem->isReported($currentUser)): ?>
+                                                        <a href="#" class="btn btn-default button-complain" data-id="<?php echo $feedItem->post_id; ?>">
+                                                            <?php echo Yii::t('feed', 'Report post') ?> <i class="fa fa-cog fa-spin fa-fw icon-preloader" style="display: none"></i>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <p>Post has been reported</p>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                                <!-- feed item -->
+                            <?php endforeach; ?>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
+                        <?php else: ?>
+
+                            <div class="col-md-12" style="text-align: center">
+                                <h2>Nobody posted yet!</h2>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
-</div>
+
+
+<?php $this->registerJsFile('@web/js/likes.js', [
+    'depends' => JqueryAsset::className(),
+]);
+$this->registerJsFile('@web/js/complaints.js', [
+    'depends' => JqueryAsset::className(),
+]);
+
+
+
+
