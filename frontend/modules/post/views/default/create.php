@@ -1,23 +1,33 @@
 <?php
 /* @var $this yii\web\View */
+
 /* @var $model frontend\modules\post\models\forms\PostForm */
 
 use yii\widgets\ActiveForm;
 use yii\helpers\Html;
+
 ?>
 
 <div class="post-default-index">
 
-    <h1>Create post</h1>
+    <div class="row">
 
-    <?php $form = ActiveForm::begin(); ?>
+        <div class="col-md-6 col-md-offset-3">
 
-        <?php echo $form->field($model, 'picture')->fileInput(); ?>
+            <h1 class="text-center"><?php echo Yii::t('menu', 'Create post')?></h1>
 
-        <?php echo $form->field($model, 'description'); ?>
+            <?php $form = ActiveForm::begin(); ?>
 
-        <?php echo Html::submitButton('Create'); ?>
+            <?php echo $form->field($model, 'picture')->fileInput()->label(Yii::t('menu', 'Picture')); ?>
 
-    <?php ActiveForm::end(); ?>
+            <?php echo $form->field($model, 'description')->label(Yii::t('menu', 'Description')); ?>
+
+            <?php echo Html::submitButton(Yii::t('menu', 'Create')); ?>
+
+            <?php ActiveForm::end(); ?>
+
+        </div>
+
+    </div>
 
 </div>

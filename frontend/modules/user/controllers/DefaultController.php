@@ -15,6 +15,8 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use frontend\models\User;
+use yii\web\Response;
 
 /**
  * Default controller for the `user` module
@@ -217,4 +219,21 @@ class DefaultController extends Controller
             'model' => $model
         ]);
     }
+
+        public function actionSearchuser()
+        {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $user = new User();
+
+            if (Yii::$app->request->isAjax) {
+
+                $username = Yii::$app->request->post('search');
+
+                $search = $user->searchUser($username);
+
+                return $search;
+            }
+        }
+
 }

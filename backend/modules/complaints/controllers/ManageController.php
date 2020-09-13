@@ -9,6 +9,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * ManageController implements the CRUD actions for Post model.
@@ -27,6 +28,16 @@ class ManageController extends Controller
                     'delete' => ['POST'],
                 ],
             ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'delete', 'approve'],
+                        'roles' => ['admin', 'moderator'],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -36,6 +47,8 @@ class ManageController extends Controller
      */
     public function actionIndex()
     {
+
+
         $dataProvider = new ActiveDataProvider([
             'query' => Post::findComplaints(),
         ]);

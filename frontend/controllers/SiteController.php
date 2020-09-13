@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use frontend\modules\user\models\VerifyEmailForm;
 use Yii;
 use yii\web\Cookie;
 use frontend\models\User;
@@ -60,6 +61,21 @@ class SiteController extends Controller
         ]);
         Yii::$app->response->cookies->add($languageCookie);
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    public function actionVerifyEmail($token)
+    {
+        $signupService = new VerifyEmailForm($token);
+
+        try{
+            $signupService->verifyEmail();
+            Yii::$app->session->setFlash('success', 'You have successfully confirmed your registration.');
+        } catch (\Exception $e){
+            Yii::$app->errorHandler->logException($e);
+            Yii::$app->session->setFlash('error', $e->getMessage());
+        }
+
+        return $this->goHome();
     }
 
 }

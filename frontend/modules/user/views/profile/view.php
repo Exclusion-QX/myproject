@@ -26,103 +26,111 @@ $this->title = Html::encode($user->username);
                     <!-- profile -->
                     <article class="profile col-sm-12 col-xs-12">
                         <div class="profile-title">
+                            <div class="col-md-4">
                             <img src="<?php echo $user->getPicture(); ?>" id="profile-picture" class="author-image" />
 
                             <div class="author-name"><?php echo Html::encode($user->username); ?></div>
-
+                            </div>
+                            <div class="col-md-5 col-sm-6 col-xs-7 col-sm-offset-1 profile-info">
+                                <div class="profile-bottom">
+                                    <div class="profile-post-count">
+                                        <span><?php echo Yii::t('profile', 'Posts') ?>
+                                            <strong><?php echo $user->getPostCount(); ?></strong></span>
+                                    </div>
+                                    <div class="profile-followers">
+                                        <a href="#" data-toggle="modal" data-target="#myModalFollowers">
+                                            <?php echo Yii::t('profile', 'Followers') ?>
+                                            <strong><?php echo $user->countFollowers(); ?></strong>
+                                        </a>
+                                    </div>
+                                    <div class="profile-following">
+                                        <a href="#" data-toggle="modal" data-target="#myModalSubscribes">
+                                            <?php echo Yii::t('profile', 'Following') ?>
+                                            <strong><?php echo $user->countSubscriptions(); ?></strong>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             <?php if ($currentUser && $currentUser->equals($user)): ?>
-
-                                <hr>
-
-                                <?= FileUpload::widget([
-                                    'model' => $modelPicture,
-                                    'attribute' => 'picture',
-                                    'url' => ['/user/profile/upload-picture'], // your url, this is just for demo purposes,
-                                    'options' => ['accept' => 'image/*'],
-                                    'clientEvents' => [
-                                        'fileuploaddone' => 'function(e, data) {
-                if (data.result.success) {
-                    $("#profile-image-success").show();
-                    $("#profile-image-fail").hide();
-                    $("#profile-picture").attr("src", data.result.pictureUri);
-                } else {
-                    $("#profile-image-fail").html(data.result.errors.picture).show();
-                    $("#profile-image-success").hide();
-                }
-            }',
-
-                                    ],
-                                ]); ?>
-                                <a href="<?php echo Url::to(['/user/profile/delete-picture']); ?>"
-                                   class="btn btn-danger"><?php echo Yii::t('profile', 'Delete picture') ?></a>
-
-                                <a href="#" data-toggle="modal" data-target="#editProfileModal" class="btn btn-default"><?php echo Yii::t('profile', 'Edit profile') ?></a>
+                                <div class="col-md-2 col-sm-4 col-xs-4 profile-button">
+                                    <a href="#" data-toggle="modal" data-target="#editProfileModal"
+                                       class="btn btn-default"><?php echo Yii::t('profile', 'Edit profile') ?></a>
+                                </div>
                             <?php endif; ?>
+
 
 <!--                            <a href="#" class="btn btn-default">Upload profile image</a>-->
 
-
-                            <br>
-                            <br>
                             <div class="alert alert-success display-none" id="profile-image-success">
                                 <?php echo Yii::t('profile', 'Profile image updated') ?>
                             </div>
                             <div class="alert alert-danger display-none" id="profile-image-fail"></div>
 
+
+                            <?php if ($currentUser && !$currentUser->equals($user)): ?>
+
+                            <div class="col-md-2 col-xs-3 profile-button">
+                                <a href="<?php echo Url::to(['/user/profile/subscribe', 'id' => $user->getId()]); ?>"
+                                   class="btn btn-info <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "display-none" : ""; ?>">
+                                    <?php echo Yii::t('profile', 'Subscribe') ?></a>
+                                <a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>"
+                                   class="btn btn-default <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "" : "display-none"; ?>">
+                                    <?php echo Yii::t('profile', 'Unsubscribe') ?>
+                                </a>
+                            </div>
                         </div>
 
-                        <?php if ($currentUser && !$currentUser->equals($user)): ?>
 
-                            <a href="<?php echo Url::to(['/user/profile/subscribe', 'id' => $user->getId()]); ?>"
-                               class="btn btn-info <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "display-none" : ""; ?>">
-                                <?php echo Yii::t('profile', 'Subscribe') ?></a>
-                            <a href="<?php echo Url::to(['/user/profile/unsubscribe', 'id' => $user->getId()]); ?>"
-                               class="btn btn-default <?php echo ($currentUser && $user->isSubscribeBy($currentUser)) ? "" : "display-none"; ?>">
-                                <?php echo Yii::t('profile', 'Unsubscribe') ?>
-                            </a>
-                            <hr>
-                            <h5><?php echo Yii::t('profile', 'Friends, who are also following') ?><?php echo Html::encode($user->username); ?>: </h5>
-                            <div class="row">
-                                <div class="col-md-12">
+                        <?php if ($currentUser->getMutualSubscriptionsTo($user)): ?>
+                            <div class="row profile-mutual-subscriptions">
+                                <div class="col-md-7 col-md-offset-1 col-sm-7 col-sm-offset-1 col-xs-7 col-xs-offset-1">
+                                    <span><?php echo Yii::t('profile', 'Followed by') ?>&nbsp;</span>
+
                                     <?php foreach ($currentUser->getMutualSubscriptionsTo($user) as $item): ?>
                                         <a href="<?php echo Url::to(['/user/profile/view', 'nickname' => ($item['nickname']) ? $item['nickname'] : $item['id']]); ?>">
                                             <?php echo Html::encode($item['username']); ?>
                                         </a>
-                                        &nbsp;&nbsp;
+                                        &nbsp;
                                     <?php endforeach; ?>
+
                                 </div>
                             </div>
-                            <hr>
+                        <?php endif; ?>
+
+
                         <?php endif; ?>
 
                         <?php if ($user->about): ?>
-                            <div class="profile-description">
+                            <div class="profile-description col-md-12 col-xs-12">
                                 <p><?php echo HtmlPurifier::process($user->about); ?></p>
                             </div>
                         <?php endif; ?>
-                        <div class="profile-bottom">
-                            <div class="profile-post-count">
-                                <span><?php echo Yii::t('profile', 'Posts') ?> <?php echo $user->getPostCount(); ?></span>
-                            </div>
-                            <div class="profile-followers">
-                                <a href="#" data-toggle="modal" data-target="#myModalFollowers">
-                                    <?php echo Yii::t('profile', 'Followers') ?> <?php echo $user->countFollowers(); ?>
-                                </a>
-                            </div>
-                            <div class="profile-following">
-                                <a href="#" data-toggle="modal" data-target="#myModalSubscribes">
-                                    <?php echo Yii::t('profile', 'Following') ?> <?php echo $user->countSubscriptions(); ?>
-                                </a>
-                            </div>
-                        </div>
+<!--                        <div class="profile-bottom">-->
+<!--                            <div class="profile-post-count">-->
+<!--                                <span>--><?php //echo Yii::t('profile', 'Posts') ?><!-- --><?php //echo $user->getPostCount(); ?><!--</span>-->
+<!--                            </div>-->
+<!--                            <div class="profile-followers">-->
+<!--                                <a href="#" data-toggle="modal" data-target="#myModalFollowers">-->
+<!--                                    --><?php //echo Yii::t('profile', 'Followers') ?><!-- --><?php //echo $user->countFollowers(); ?>
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                            <div class="profile-following">-->
+<!--                                <a href="#" data-toggle="modal" data-target="#myModalSubscribes">-->
+<!--                                    --><?php //echo Yii::t('profile', 'Following') ?><!-- --><?php //echo $user->countSubscriptions(); ?>
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </article>
 
                     <div class="col-sm-12 col-xs-12">
-                        <div class="row profile-posts">
+                        <div class="row">
                             <?php foreach ($user->getPosts() as $post): ?>
-                                <div class="col-md-4 profile-post">
+                                <div class="col-md-4 col-sm-6 col-xs-6 profile-post" style="background-size: cover;">
                                     <a href="<?php echo Url::to(['/post/default/view', 'id' => $post->getId()]); ?>">
-                                        <img src="<?php echo Yii::$app->storage->getFile($post->filename); ?>" class="author-image" />
+                                        <div class="body-post-image">
+                                            <img src="<?php echo Yii::$app->storage->getFile($post->filename); ?>"
+                                                 class="post-image"/>
+                                        </div>
                                     </a>
                                 </div>
                             <?php endforeach; ?>
@@ -222,13 +230,38 @@ $this->title = Html::encode($user->username);
 
                         <?php echo $form->field($model, 'username')->textInput(['value' => $currentUser->username])->label(Yii::t('profile' , 'Username')); ?>
 
-                        <?php echo $form->field($model, 'nickname')->label(Yii::t('profile' , 'Nickname')); ?>
+                        <?php echo $form->field($model, 'nickname')->textInput(['value' => $currentUser->nickname])->label(Yii::t('profile' , 'Nickname')); ?>
 
-                        <?php echo $form->field($model, 'about')->textarea(['style' => 'resize: none;'])->label(Yii::t('profile' , 'About')); ?>
+                        <?php echo $form->field($model, 'about')->textarea(['value' => $currentUser->about, 'style' => 'resize: none;'])->label(Yii::t('profile' , 'About')); ?>
 
+                        <label><?php echo Yii::t('profile', 'Picture') ?></label>
+                        <br>
+
+                        <?= FileUpload::widget([
+                            'model' => $modelPicture,
+                            'attribute' => 'picture',
+                            'url' => ['/user/profile/upload-picture'], // your url, this is just for demo purposes,
+                            'options' => ['accept' => 'image/*'],
+                            'clientEvents' => [
+                                'fileuploaddone' => 'function(e, data) {
+                if (data.result.success) {
+                    $("#profile-image-success").show();
+                    $("#profile-image-fail").hide();
+                    $("#profile-picture").attr("src", data.result.pictureUri);
+                } else {
+                    $("#profile-image-fail").html(data.result.errors.picture).show();
+                    $("#profile-image-success").hide();
+                }
+            }',
+
+                            ],
+                        ]); ?>
+                        <a href="<?php echo Url::to(['/user/profile/delete-picture']); ?>"
+                           class="btn btn-danger"><?php echo Yii::t('profile', 'Delete picture') ?></a>
                     </div>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><? echo Yii::t('profile', 'Close') ?></button>
                 <?php echo Html::submitButton(Yii::t('profile', 'Save changes'), ['class' => 'btn btn-primary']);?>

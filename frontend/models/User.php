@@ -7,6 +7,7 @@ use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\web\Response;
 
 /**
  * User model
@@ -405,6 +406,12 @@ class User extends ActiveRecord implements IdentityInterface
         $model->about = $about;
         $model->update();
         return true;
+    }
+
+    public function searchUser($username)
+    {
+        $sql = "SELECT * FROM user WHERE username LIKE '%$username%' LIMIT 7";
+        return Yii::$app->db->createCommand($sql)->queryAll();
     }
 
 }

@@ -13,9 +13,9 @@ use yii\helpers\ArrayHelper;
 
         <div class="row">
 
-            <div class="col-md-12">
+            <div class="col-md-8 col-md-offset-2">
                 <article class="profile">
-                    <div class="profile-title">
+                    <div class="profile-title profile-title-top">
                         <img src="<?php echo $post->user->getPicture(); ?>" id="profile-picture" class="author-image"/>
 
                         <div class="author-name">
@@ -29,18 +29,14 @@ use yii\helpers\ArrayHelper;
                 </article>
             </div>
 
-            <div class="col-md-12">
-                <?php echo Html::encode(Yii::$app->formatter->asDatetime($post->created_at)); ?>
-            </div>
-
-            <div class="col-md-8">
+            <div class="col-md-8 col-md-offset-2 post-image">
                 <a href="#" data-toggle="modal" data-target="#myModalFunctions">
                     <i class="fa fa-lg fa-align-justify pull-right" style="margin-bottom: 10px;"></i>
                 </a>
-                <img src="<?php echo $post->getImage(); ?>" />
+                <img src="<?php echo $post->getImage(); ?>" tabindex="0" />
             </div>
 
-            <div class="col-md-12 post-description-padding">
+            <div class="col-md-8 col-md-offset-2 post-description-padding">
                 <?php echo Html::encode($post->description); ?>
             </div>
 
@@ -48,30 +44,48 @@ use yii\helpers\ArrayHelper;
 
 
 
-        <div class="col-md-8">
+        <div class="col-md-8 col-md-offset-2 post-likes">
             <hr>
-            Likes: <span class="likes-count"><?php echo $post->countLikes(); ?></span>
+    <!--            Likes: <span class="likes-count">--><?php //echo $post->countLikes(); ?><!--</span>-->
+    <!---->
+    <!--            <a href="#"-->
+    <!--               class="btn btn-primary button-like --><?php //echo ($currentUser && $post->isLikedBy($currentUser)) ? "display-none" : ""; ?><!--"-->
+    <!--               data-id="--><?php //echo $post->id; ?><!--">-->
+    <!--                Like&nbsp;&nbsp;<span class="glyphicon glyphicon-thumbs-up"></span>-->
+    <!--            </a>-->
+    <!---->
+    <!--            <a href="#"-->
+    <!--               class="btn btn-primary button-unlike --><?php //echo ($currentUser && $post->isLikedBy($currentUser)) ? "" : "display-none"; ?><!--"-->
+    <!--               data-id="--><?php //echo $post->id; ?><!--">-->
+    <!--                Unlike&nbsp;&nbsp;<span class="glyphicon glyphicon-thumbs-down"></span>-->
+    <!--            </a>-->
 
-            <a href="#"
-               class="btn btn-primary button-like <?php echo ($currentUser && $post->isLikedBy($currentUser)) ? "display-none" : ""; ?>"
-               data-id="<?php echo $post->id; ?>">
-                Like&nbsp;&nbsp;<span class="glyphicon glyphicon-thumbs-up"></span>
-            </a>
+                <span class="likes-count"><?php echo $post->countLikes(); ?></span>
+                &nbsp;
+                <a href="#"
+                   class="btn btn-default button-heart button-unlike <?php echo ($currentUser && $post->isLikedBy($currentUser)) ? "" : "display-none"; ?>"
+                   data-id="<?php echo $post->id; ?>">
 
-            <a href="#"
-               class="btn btn-primary button-unlike <?php echo ($currentUser && $post->isLikedBy($currentUser)) ? "" : "display-none"; ?>"
-               data-id="<?php echo $post->id; ?>">
-                Unlike&nbsp;&nbsp;<span class="glyphicon glyphicon-thumbs-down"></span>
-            </a>
+                    <i class="fa fa-2x fa-heart heart-ani" style="color: #FB000D;"></i>
+                </a>
+
+                <a href="#"
+                   class="btn btn-default button-heart  button-like <?php echo ($currentUser && $post->isLikedBy($currentUser)) ? "display-none" : ""; ?>"
+                   data-id="<?php echo $post->id; ?>">
+                    <i class="fa fa-2x fa-heart-o heart-ani"></i>
+                </a>
+
+                <p><?php echo Html::encode(Yii::$app->formatter->asRelativeTime($post->created_at)); ?></p>
+
         </div>
 
         <?php if (!Yii::$app->user->isGuest): ?>
 
-            <div class="col-md-8">
+            <div class="col-md-8 col-md-offset-2">
                 <h4><?php echo Yii::t('post', 'Leave a reply') ?></h4>
             </div>
 
-            <div class="comment-form col-md-8">
+            <div class="comment-form col-md-8 col-md-offset-2">
 
                 <?php $form = ActiveForm::begin([
                     'action' => ['default/comment', 'id' => $post->id, 'username' => $currentUser->username],
@@ -92,7 +106,7 @@ use yii\helpers\ArrayHelper;
             <?php /* @var $commentItem Post */ ?>
 
             <!-- comment item -->
-            <div class="col-md-8" id="comment" data-id="<?php echo $commentItem->id; ?>">
+            <div class="col-md-8 col-md-offset-2" id="comment" data-id="<?php echo $commentItem->id; ?>">
                 <article class="comment col-sm-12 col-xs-12">
                     <div class="profile-title">
                         <img src="/uploads/<?php echo $currentUser->getUserById($commentItem->user_id)->picture; ?>"

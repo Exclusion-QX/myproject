@@ -7,6 +7,7 @@ html {
 }
 
 body {
+    background-color: #f6f6f687;
     padding: 0;
     margin: 0;
     height: 100%;
@@ -29,6 +30,11 @@ a {
     text-decoration: none;
 }
 
+header {
+    background-color: white;
+    border-bottom: 1px solid;
+    border-color: #ececec;
+}
 
 header, section, article, aside, canvas {
     position: relative;
@@ -97,11 +103,14 @@ header .header-top .brand-logo h1 span {
     margin: 5px 0 0 0;
 }
 
+header .header-top .select-language {
+    border-radius: 2px;
+}
+
 .header-main-nav {
     position: relative;
-    border-bottom: 1px solid;
+    /*border-bottom: 1px solid;*/
     height: 60px;
-    margin-bottom: 30px;
 }
 
 .header-main-nav .main-nav-wrapper {
@@ -113,6 +122,11 @@ header .header-top .brand-logo h1 span {
 .header-main-nav .main-nav-wrapper .main-menu {
     display: inline-block;
     text-align: center;
+    background-color: white;
+    border-color: transparent;
+    border-bottom: 1px solid;
+    border-bottom-color: #ececec;
+    border-radius: 0px;
 }
 
 .header-main-nav .main-nav-wrapper .main-menu ul {
@@ -142,6 +156,8 @@ header .header-top .brand-logo h1 span {
     padding: 20px 22px;
     cursor: pointer;
 }
+
+
 
 .blog-main {
     position: relative;
@@ -214,20 +230,22 @@ header .header-top .brand-logo h1 span {
     display: none;
 }
 
-.blog-posts .post .post-bottom .post-comments, .post-report {
+.blog-posts .post .post-bottom .post-comments {
     position: relative;
     display: inline-block;
     border-left: 1px solid #ececec;
     border-right: 1px solid #ececec;
-    padding: 0px 15px 10px;
-    margin: 0 10px;
+    padding: 10px 15px 10px;
+    margin-left: 10px;
 }
 
 .blog-posts .post .post-bottom .post-date {
     position: relative;
     font-family: 'Ubuntu', sans-serif;
     display: inline-block;
-    font-size: 13px;
+    font-size: 14px;
+    padding: 10px 15px;
+    border-right: 1px solid #ececec;
 }
 
 .post-report {
@@ -235,8 +253,32 @@ header .header-top .brand-logo h1 span {
     font-family: 'Ubuntu', sans-serif;
     display: inline-block;
     font-size: 13px;
-    border-left: 1px solid #ececec;
     border-right: 0;
+    padding: 10px 15px;
+}
+
+.post-image img[tabindex="0"] {
+
+}
+
+.post-image img[tabindex="0"]:focus {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    max-width: 93%;
+    max-height: 93%;
+    margin: auto;
+    box-shadow: 0 0 20px #000, 0 0 0 1000px rgba(59,59,59,.4);
+}
+
+.post-image img[tabindex="0"]:focus,
+.post-image img[tabindex="0"]:focus ~ * {
+    pointer-events: none;
 }
 
 
@@ -466,9 +508,22 @@ footer .footer p.text {
 {
     margin-bottom: 35px;
 }
+
+.profile-title-top {
+    margin-top: 40px;
+}
+
 .profile .profile-bottom {
     position: relative;
-    border-bottom: 1px solid #ececec;
+    /*border-bottom: 1px solid #ececec;*/
+}
+
+.profile .profile-info {
+    margin: 30px 0px 5px 0px;
+}
+
+.profile .profile-button {
+    margin-top: 30px;
 }
 
 .profile .profile-post-count, .profile .profile-followers, .profile .profile-following {
@@ -478,12 +533,21 @@ footer .footer p.text {
     text-decoration: none;
 }
 
+.profile-mutual-subscriptions span {
+    color: grey;
+}
+
+.profile-followers a, .profile-following a, .profile-mutual-subscriptions a {
+    text-decoration: none;
+    color: black;
+}
+
 .profile .profile-followers {
     position: relative;
     display: inline-block;
     border-left: 1px solid #ececec;
     border-right: 1px solid #ececec;
-    padding: 0px 15px 10px;
+    padding: 5px 15px 5px;
     margin: 0 10px;
 }
 
@@ -539,6 +603,37 @@ footer .footer p.text {
 {
     margin-bottom: 25px;
 }
+
+.profile-post a {
+    display: inline-block;
+    width: 100%;
+}
+
+.profile-post .body-post-image {
+    background: #000;  /* У блока, оборачивающего картинку при наведении будет просвечивать черный фон */
+    overflow: hidden;  /* Ограничиваем видиую область */
+}
+
+.profile-post .body-post-image img {
+    opacity: 1;
+    transition: opacity 124ms linear, transform 124ms linear;  /* Плавное изменение прозрачности и увеличения */
+    width: 100%;
+    display: block; /* Убираем полосу под картинкий */
+}
+
+.profile-post a:hover .body-post-image img {
+    opacity: 0.6; /* Высветляем картинку, но она становится темнее, так как под ней черный фон */
+    transform: scale(1.01); /* Увеличение картинки */
+}
+
+.profile-post .post-image
+{
+    display: block;
+    width: 350px;
+    height: 300px;
+    object-fit: cover;
+}
+
 /** profile **/
 
 .header-main-nav .main-nav-wrapper .main-menu ul li, .nav li > form > button.logout {
@@ -587,3 +682,121 @@ footer .footer p.text {
 footer, .push {
     height: 80px; /* .push must be the same height as .footer */
 }
+
+@media only screen and (max-width: 991px) {
+    .profile .profile-info {
+        margin: 30px 0px 5px 110px;
+    }
+
+    .logout-button, .navicons-topbar ul {
+        width: 235px;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .brand-logo {
+        width: 100%;
+    }
+
+    .header-main-nav .main-nav-wrapper .main-menu {
+        float: right;
+        border-bottom-color: transparent;
+    }
+
+    .profile .profile-info {
+        margin: 30px 0px 5px 120px;
+    }
+
+    .profile .profile-button {
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+
+    .profile .profile-title a.btn {
+        margin-left: 40%;
+    }
+}
+
+@media only screen and (max-width: 666px) {
+    .profile .profile-info {
+        margin: 30px 0px 5px 90px;
+    }
+
+    .profile-post .post-image {
+        height: 200px;
+    }
+
+    .profile .profile-button {
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+
+    .profile .profile-title a.btn {
+        margin-left: 40%;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    .profile .profile-info {
+        width: 100%;
+    }
+
+    .profile .profile-info {
+        margin: 30px 0px 5px 10%;
+    }
+
+    .profile .profile-button {
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+
+    .profile .profile-title a.btn {
+        margin-left: 40%;
+    }
+
+}
+
+@media only screen and (max-width: 525px) {
+    .post-report{
+        margin-left: 25%;
+    }
+
+    .post-bottom {
+        margin-left: 15%;
+    }
+}
+
+
+@media only screen and (max-width: 480px) {
+    .profile-post .post-image {
+        height: 150px;
+    }
+
+    .profile .profile-info {
+        margin: 30px 0px 5px 0px;
+    }
+
+    .profile .profile-button {
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+
+    .profile .profile-title a.btn {
+        margin-left: 30%;
+    }
+
+    .post-bottom {
+        margin-left: 5%;
+    }
+}
+
+@media only screen and (max-width: 388px) {
+    .post-bottom {
+        margin-left: 0%;
+    }
+}
+

@@ -9,6 +9,7 @@ use yii\web\JqueryAsset;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
+use yii\widgets\ActiveForm;
 
 $this->title = 'Newsfeed';
 ?>
@@ -54,21 +55,21 @@ $this->title = 'Newsfeed';
                                                        class="btn btn-default button-heart button-unlike <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "" : "display-none"; ?>"
                                                        data-id="<?php echo $feedItem->post_id; ?>">
 
-                                                        <i class="fa fa-lg fa-heart heart-ani" style="color: #FB000D;"></i>
+                                                        <i class="fa fa-2x fa-heart heart-ani" style="color: #FB000D;"></i>
                                                     </a>
 
                                                     <a href="#"
                                                        class="btn btn-default button-heart  button-like <?php echo ($currentUser->likesPost($feedItem->post_id)) ? "display-none" : ""; ?>"
                                                        data-id="<?php echo $feedItem->post_id; ?>">
-                                                        <i class="fa fa-lg fa-heart-o heart-ani"></i>
+                                                        <i class="fa fa-2x fa-heart-o heart-ani"></i>
                                                     </a>
                                                 </div>
                                                 <div class="post-comments">
-                                                    <a href="<?php echo Url::to(['/post/default/view', 'id' => $feedItem->post_id]); ?>"><?php echo $feedItem->countComments(); ?> <?php echo Yii::t('feed', 'Comments') ?></a>
+                                                    <a href="<?php echo Url::to(['/post/default/view', 'id' => $feedItem->post_id]); ?>"><?php echo Yii::t('feed', 'Comments') ?>: <?php echo $feedItem->countComments(); ?></a>
 
                                                 </div>
                                                 <div class="post-date">
-                                                    <span><?php echo Yii::$app->formatter->asDatetime($feedItem->post_created_at); ?></span>
+                                                    <span><?php echo Yii::$app->formatter->asRelativeTime($feedItem->post_created_at); ?></span>
                                                 </div>
                                                 <div class="post-report">
                                                     <?php if (!$feedItem->isReported($currentUser)): ?>
@@ -76,7 +77,7 @@ $this->title = 'Newsfeed';
                                                             <?php echo Yii::t('feed', 'Report post') ?> <i class="fa fa-cog fa-spin fa-fw icon-preloader" style="display: none"></i>
                                                         </a>
                                                     <?php else: ?>
-                                                        <p>Post has been reported</p>
+                                                        <p><?php echo Yii::t('feed', 'Post has been reported') ?></p>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
@@ -97,7 +98,6 @@ $this->title = 'Newsfeed';
             </div>
         </div>
     </div>
-
 
 <?php $this->registerJsFile('@web/js/likes.js', [
     'depends' => JqueryAsset::className(),

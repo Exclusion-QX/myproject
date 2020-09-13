@@ -26,7 +26,7 @@ return [
         ],
         'comments' => [
             'class' => 'frontend\modules\comments\Module'
-        ]
+        ],
     ],
     'components' => [
         'request' => [

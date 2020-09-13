@@ -92,9 +92,24 @@ a.desc:after {
 }
 
 .post-description-padding{
-    padding-top: 30px;
-    padding-left: 30px;
-    width: 800px;
+    padding: 20px 30px 0px 30px;
+}
+
+.post-likes {
+    margin-bottom: 20px;
+}
+
+.post-likes span {
+    font-size: 12pt;
+}
+
+.post-likes hr {
+    margin: 5px 0px 10px 0px;
+}
+
+.post-likes p {
+    float: right;
+    margin-bottom: 15px;
 }
 
 .button-heart {
@@ -118,6 +133,6 @@ a.desc:after {
 }
 
 .heart-ani:active {
-    font-size: 1.5em;
+    font-size: 2.2em;
     vertical-align: +5%;
 }
